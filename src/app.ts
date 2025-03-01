@@ -6,6 +6,7 @@ import globalErrorHandler from './middleware/globalErrorHandler';
 import userRouters from './modules/users/userRoutes';
 import authRouters from './modules/auth/authRoutes';
 import medicineRouters from './modules/medicines/medicineRoutes';
+import cartRouters from './modules/cart/cartRoutes';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/v1', userRouters);
 app.use('/api/v1', authRouters);
 app.use('/api/v1', medicineRouters);
+app.use('/api/v1', cartRouters);
 
 app.get('/', (req, res) => {
   res.send('Hello NEXT-SIX!');
