@@ -7,6 +7,7 @@ import auth from '../../middleware/authMiddleware';
 const userRouters = express.Router();
 
 userRouters.get('/user/:email', userControllers.getUserByEmail);
+
 userRouters.get('/users/:userId', userControllers.getSingleUserById);
 
 userRouters.put(
