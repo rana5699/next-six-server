@@ -11,6 +11,7 @@ const CartSchema = new Schema<ICart>(
           ref: 'Medicine',
           required: true,
         },
+        price: { type: Number },
         quantity: { type: Number, default: 1 },
       },
     ],
@@ -22,20 +23,16 @@ const CartSchema = new Schema<ICart>(
   },
 );
 
-// totalPrice
-// CartSchema.pre('save', async function (next) {
-//   // Populate the 'medicineId' field in the 'items' array
-//  await this.populate('items.medicineId');
+// Calculate totalPrice before saving the cart
+CartSchema.pre('save', function (next) {
 
+  this.totalPrice = this.items.reduce((acc, item) => {
+    const price = item.price || 0; 
+    return acc + price * item.quantity;
+  }, 0);
 
-// //   // Calculate totalPrice after population
-//   this.totalPrice = this.items.reduce((acc, item) => {
-//     const price = item.medicineId?.price || 0; // Get the price of the medicine
-//     return acc + price * item.quantity; // Add to the totalPrice
-//   }, 0);
-
-//   next();
-// });
+  next(); 
+});
 
 const Cart = model<ICart>('Cart', CartSchema);
 
