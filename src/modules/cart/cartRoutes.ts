@@ -1,9 +1,10 @@
 import express from 'express';
 import { cartControllers } from './cartControllers';
+import auth from '../../middleware/authMiddleware';
 
 const cartRouters = express.Router();
 
-cartRouters.post('/cart', cartControllers.addToCart);
+cartRouters.post('/cart',auth("customer",'admin'), cartControllers.addToCart);
 
 cartRouters.get('/cart/:userId', cartControllers.getCartItemsById);
 

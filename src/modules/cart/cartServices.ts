@@ -1,8 +1,8 @@
-import { ICart } from './cartInterface';
+import {  ICartItem } from './cartInterface';
 import CartModel from './cartModel';
 
 // add medicine in the cart
-const addToCart = async (payload: ICart) => {
+const addToCart = async (payload: ICartItem) => {
   const newCartData = await CartModel.create(payload);
   return newCartData;
 };

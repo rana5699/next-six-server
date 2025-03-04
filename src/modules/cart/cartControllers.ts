@@ -1,17 +1,17 @@
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 import responseHandler from '../../utils/responseHandler';
 import { cartServices } from './cartServices';
 import User from '../users/userModel';
-import Medicine from '../medicines/medicineModel';
 import Cart from './cartModel';
 
+// add to cart
 const addToCart = catchAsync(async (req, res) => {
-  const cartData = req.body;
+  const { medicineId, quantity } = req.body;
+  const userId = req.user?.userId;
+
   // Check if user exists
-  const user = await User.findById(cartData.userId);
+  const user = await User.findById(userId);
   if (!user) {
     return responseHandler(
       res,
@@ -22,76 +22,40 @@ const addToCart = catchAsync(async (req, res) => {
     );
   }
 
-  // Check if all medicines exist
-  const medicines = await Medicine.find({
-    _id: { $in: cartData.items.map((item: any) => item.medicineId) },
-  });
+  // Check if the user's cart exists
+  let cart = await Cart.findOne({ userId });
 
-  // Check for missing medicines in the request
-  const missingMedicines = cartData.items.filter(
-    (item: any) =>
-      !medicines.some(
-        (medicine: any) =>
-          medicine._id.toString() === item.medicineId.toString(),
-      ),
-  );
-
-  if (missingMedicines.length > 0) {
-    return responseHandler(
-      res,
-      StatusCodes.NOT_FOUND,
-      false,
-      'Some medicines not found',
-      missingMedicines,
-    );
-  }
-
-  // Check if cart already exists for the user
-  let existingCart = await Cart.findOne({ userId: user?._id });
-  let result: object | null = {};
-
-  if (existingCart) {
-    // Iterate through each item in the incoming cartData
-    for (let newItem of cartData.items) {
-      // Check if the item already exists in the cart
-      const existingItemIndex = existingCart.items.findIndex(
-        (item) => item.medicineId.toString() === newItem.medicineId.toString(),
-      );
-
-      if (existingItemIndex > -1) {
-        existingCart.items[existingItemIndex].quantity += newItem.quantity;
-      } else {
-        existingCart.items.push(newItem);
-      }
-    }
-
-    // Save the updated cart
-    result = await existingCart.save();
+  if (!cart) {
+    cart = new Cart({
+      userId,
+      items: [{ medicineId, quantity }],
+    });
   } else {
-    // If cart doesn't exist, create a new one
-    result = await cartServices.addToCart(cartData);
-  }
-
-  if (!result) {
-    return responseHandler(
-      res,
-      StatusCodes.BAD_REQUEST,
-      false,
-      'Failed to update cart',
-      null,
+    const existingItem = cart.items.find(
+      (item) => item.medicineId.toString() === medicineId,
     );
+
+    if (existingItem) {
+      existingItem.quantity += quantity || 1;
+    } else {
+      cart.items.push({
+        medicineId,
+        quantity,
+      });
+    }
   }
 
-  return responseHandler(
+  await cart.save();
+
+  responseHandler(
     res,
-    StatusCodes.CREATED,
-    true,
-    'Item(s) added to cart successfully',
-    result,
+    StatusCodes.NOT_FOUND,
+    false,
+    'Cart added successfully',
+    cart,
   );
 });
 
-// get cart items
 const getCartItemsById = catchAsync(async (req, res) => {
   const { userId } = req.params;
 
@@ -171,10 +135,10 @@ const updateCartItem = catchAsync(async (req, res) => {
   cart.items[itemIndex].quantity = quantity;
 
   // Recalculate totalPrice
-  cart.totalPrice = cart.items.reduce(
-    (total, item) => total + item.price! * item.quantity,
-    0,
-  );
+  // cart.totalPrice = cart.items.reduce(
+  //   (total, item) => total + item.price! * item.quantity,
+  //   0,
+  // );
 
   // Save the updated cart
   const result = await cart.save();
@@ -234,6 +198,7 @@ const clearCart = catchAsync(async (req, res) => {
     {},
   );
 });
+
 const deleteCartItem = catchAsync(async (req, res) => {
   const { userId, medicineId } = req.params;
 
@@ -244,7 +209,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
       StatusCodes.BAD_REQUEST,
       false,
       'User ID and medicine ID are required',
-      null
+      null,
     );
   }
 
@@ -256,35 +221,15 @@ const deleteCartItem = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'Cart not found',
-      null
+      null,
     );
   }
 
-  // Find the medicine item in the cart
-  const itemIndex = cart.items.findIndex(
-    (item) => item.medicineId.toString() === medicineId
+  // Remove cart item from cart
+  cart.items = cart.items.filter(
+    (item) => item.medicineId.toString() !== medicineId,
   );
 
-  if (itemIndex === -1) {
-    return responseHandler(
-      res,
-      StatusCodes.NOT_FOUND,
-      false,
-      'Medicine not found in cart',
-      null
-    );
-  }
-
-  // Remove the item from the cart
-  cart.items.splice(itemIndex, 1);
-
-  // Recalculate total price
-  cart.totalPrice = cart.items.reduce(
-    (total, item) => total + item.price! * item.quantity,
-    0
-  );
-
-  // Save the updated cart
   await cart.save();
 
   return responseHandler(
@@ -292,7 +237,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart item deleted successfully',
-    cart
+    cart,
   );
 });
 

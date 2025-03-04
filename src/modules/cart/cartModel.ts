@@ -1,17 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Schema, model } from 'mongoose'; // Import CartItem schema
 import { ICart } from './cartInterface';
+import Medicine from '../medicines/medicineModel';
 
 const CartSchema = new Schema<ICart>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     items: [
       {
+        _id: false,
         medicineId: {
           type: Schema.Types.ObjectId,
           ref: 'Medicine',
           required: true,
         },
-        price: { type: Number },
         quantity: { type: Number, default: 1 },
       },
     ],
@@ -23,15 +25,31 @@ const CartSchema = new Schema<ICart>(
   },
 );
 
-// Calculate totalPrice before saving the cart
-CartSchema.pre('save', function (next) {
+// pre save hook for calculating the total price
+CartSchema.pre('save', async function (next) {
+  try {
+    let totalPrice = 0;
 
-  this.totalPrice = this.items.reduce((acc, item) => {
-    const price = item.price || 0; 
-    return acc + price * item.quantity;
-  }, 0);
+    if (this.items?.length > 0) {
+      const medicineIds = this.items.map((item) => item.medicineId);
+      const medicines = await Medicine.find({ _id: { $in: medicineIds } });
 
-  next(); 
+      this.items.forEach((item) => {
+        const medicine = medicines.find(
+          (med) => med._id.toString() === item.medicineId.toString(),
+        );
+
+        if (medicine) {
+          totalPrice += medicine?.price * item.quantity!;
+        }
+      });
+    }
+
+    this.totalPrice = totalPrice;
+    next();
+  } catch (error: any) {
+    next(error);
+  }
 });
 
 const Cart = model<ICart>('Cart', CartSchema);

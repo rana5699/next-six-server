@@ -10,4 +10,8 @@ export default {
   dataBase: process.env.DATABASE_URL,
 
   jwtAccessToken: process.env.JWT_ACCESS_TOKEN,
+  stripeSecretKey : process.env.STRIPE_SECRET_KEY ,
+  stripePublicKey: process.env.STRIPE_PUBLIC_KEY ,
+  stripeSuccessUrl: process.env.STRIPE_SUCCESS_URL ,
+  stripeCancelUrl: process.env.STRIPE_CANCEL_URL ,
 };

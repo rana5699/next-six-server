@@ -2,8 +2,7 @@ import { Types } from 'mongoose';
 
 export interface ICartItem {
   medicineId: Types.ObjectId;
-  price?: number;
-  quantity: number;
+  quantity?: number;
 }
 
 export interface ICart {

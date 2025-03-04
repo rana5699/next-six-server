@@ -24,7 +24,7 @@ const auth = (...userRoles: TUserRole[]) => {
           );
         }
 
-        const { role } = decoded as JwtPayload;
+        const {userId, role } = decoded as JwtPayload;
 
         // Check user role
         if (userRoles.length && !userRoles.includes(role as TUserRole)) {
@@ -32,9 +32,8 @@ const auth = (...userRoles: TUserRole[]) => {
             new AppError(StatusCodes.UNAUTHORIZED, 'You are UNAUTHORIZED'),
           );
         }
-
         // Attach the decoded token to the request object
-        req.user = decoded as JwtPayload;
+        req.user = { userId, role } as JwtPayload;
 
         next();
       });
