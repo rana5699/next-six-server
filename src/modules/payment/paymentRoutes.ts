@@ -8,15 +8,14 @@ const paymentRouters = express.Router();
 paymentRouters.post(
   '/create-checkout-session',
 
-  auth('admin'),
+  auth('admin',"customer"),
 
   paymentControllers.createCheckOutSession,
 );
 
 paymentRouters.post(
   '/payment-status',
-
-  auth('admin'),
+  auth('admin',"customer"),
   paymentControllers.checkPayment,
 );
 

@@ -3,6 +3,8 @@ import { Schema, model } from 'mongoose'; // Import CartItem schema
 import { ICart } from './cartInterface';
 import Medicine from '../medicines/medicineModel';
 
+// Medicine
+
 const CartSchema = new Schema<ICart>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -11,9 +13,10 @@ const CartSchema = new Schema<ICart>(
         _id: false,
         medicineId: {
           type: Schema.Types.ObjectId,
-          ref: 'Medicine',
+          ref: 'Medicine', // Ensure this matches the model name exactly
           required: true,
         },
+        
         quantity: { type: Number, default: 1 },
       },
     ],

@@ -4,6 +4,7 @@ import responseHandler from '../../utils/responseHandler';
 import { cartServices } from './cartServices';
 import User from '../users/userModel';
 import Cart from './cartModel';
+import Medicine from '../medicines/medicineModel';
 
 // add to cart
 const addToCart = catchAsync(async (req, res) => {
@@ -18,6 +19,20 @@ const addToCart = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'User not found',
+      null,
+      null,
+    );
+  }
+
+  const isMedicineExists = await Medicine.findById(medicineId)
+
+  if (!isMedicineExists) {
+    return responseHandler(
+      res,
+      StatusCodes.NOT_FOUND,
+      false,
+      'Medicine not found',
+      null,
       null,
     );
   }
@@ -49,34 +64,24 @@ const addToCart = catchAsync(async (req, res) => {
 
   responseHandler(
     res,
-    StatusCodes.NOT_FOUND,
-    false,
+    StatusCodes.CREATED,
+    true,
     'Cart added successfully',
+    null,
     cart,
   );
 });
 
 const getCartItemsById = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const result = await cartServices.getCartItemByUserId(req.query);
 
-  if (!userId) {
-    responseHandler(
-      res,
-      StatusCodes.BAD_REQUEST,
-      false,
-      'User ID is required',
-      null,
-    );
-  }
-
-  const result = await cartServices.getCartItemByUserId(userId);
-
-  if (!result) {
+  if (result?.data.length === 0) {
     responseHandler(
       res,
       StatusCodes.NOT_FOUND,
       false,
       'Cart items not found!',
+      null,
       null,
     );
   }
@@ -86,15 +91,15 @@ const getCartItemsById = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart items retrieved successfully.',
-    result,
+    result?.meta,
+    result?.data,
   );
 });
 
 // update cart item
 const updateCartItem = catchAsync(async (req, res) => {
-  const { userId } = req.params;
   const { medicineId, quantity } = req.body;
-
+  const userId = req.user?.userId;
   // Validate the request parameters
   if (!userId || !medicineId || quantity === undefined || quantity === null) {
     return responseHandler(
@@ -102,6 +107,7 @@ const updateCartItem = catchAsync(async (req, res) => {
       StatusCodes.BAD_REQUEST,
       false,
       'User ID, medicine ID, and quantity are required',
+      null,
       null,
     );
   }
@@ -113,6 +119,7 @@ const updateCartItem = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'Cart not found',
+      null,
       null,
     );
   }
@@ -128,17 +135,12 @@ const updateCartItem = catchAsync(async (req, res) => {
       false,
       'Medicine not found in cart',
       null,
+      null,
     );
   }
 
   // Update the quantity
   cart.items[itemIndex].quantity = quantity;
-
-  // Recalculate totalPrice
-  // cart.totalPrice = cart.items.reduce(
-  //   (total, item) => total + item.price! * item.quantity,
-  //   0,
-  // );
 
   // Save the updated cart
   const result = await cart.save();
@@ -150,6 +152,7 @@ const updateCartItem = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'Cart item not found!',
+      null,
       {},
     );
   }
@@ -159,13 +162,15 @@ const updateCartItem = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart item updated successfully.',
+    null,
     result,
   );
 });
 
 // delete cart item
 const clearCart = catchAsync(async (req, res) => {
-  const { userId, cartId } = req.params;
+  const {cartId } = req.params;
+  const userId = req.user?.userId;
 
   // Validate the request parameters
   if (!userId || !cartId) {
@@ -174,6 +179,7 @@ const clearCart = catchAsync(async (req, res) => {
       StatusCodes.BAD_REQUEST,
       false,
       'User ID and cart item ID are required',
+      null,
       null,
     );
   }
@@ -186,6 +192,7 @@ const clearCart = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'Cart item not found!',
+      null,
       {},
     );
   }
@@ -195,12 +202,14 @@ const clearCart = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart item deleted successfully.',
+    null,
     {},
   );
 });
 
 const deleteCartItem = catchAsync(async (req, res) => {
-  const { userId, medicineId } = req.params;
+  const {  medicineId } = req.params;
+  const userId = req.user?.userId;
 
   // Validate request parameters
   if (!userId || !medicineId) {
@@ -209,6 +218,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
       StatusCodes.BAD_REQUEST,
       false,
       'User ID and medicine ID are required',
+      null,
       null,
     );
   }
@@ -221,6 +231,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'Cart not found',
+      null,
       null,
     );
   }
@@ -237,6 +248,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart item deleted successfully',
+    null,
     cart,
   );
 });

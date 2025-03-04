@@ -1,4 +1,6 @@
-import {  ICartItem } from './cartInterface';
+import QueryBuilder from '../../queryBuilder/QueryBuilder';
+import { ICartItem } from './cartInterface';
+import Cart from './cartModel';
 import CartModel from './cartModel';
 
 // add medicine in the cart
@@ -8,8 +10,22 @@ const addToCart = async (payload: ICartItem) => {
 };
 
 // get cart by user id
-const getCartItemByUserId = async (userId: string) => {
-  return await CartModel.findOne({ userId });
+const getCartItemByUserId = async (query: Record<string, unknown>) => {
+  const cartsQuery = new QueryBuilder(Cart.find(), query)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await cartsQuery.countTotal();
+  const result = await cartsQuery.modelQuery
+  .populate('userId', 'name email phone')
+  .populate("items.medicineId");
+
+  return {
+    meta,
+    data: result,
+  };
 };
 
 // update cart

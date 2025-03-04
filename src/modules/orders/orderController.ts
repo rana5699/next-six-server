@@ -12,7 +12,7 @@ const allOrders = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Order retrived successfully.',
-
+    null,
     result,
   );
 });
@@ -27,6 +27,7 @@ const getOrder = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Order retrived successfully.',
+    null,
     result,
   );
 
@@ -35,6 +36,7 @@ const getOrder = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Order retrived successfully',
+    null,
     result,
   );
 });
@@ -53,6 +55,7 @@ const updateOrderStatus = catchAsync(async (req, res) => {
       true,
       'Order not found!',
       null,
+      null,
     );
   }
 
@@ -61,6 +64,7 @@ const updateOrderStatus = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     `Order is properly ready ${intentStatus}.`,
+    null,
     result,
   );
 });

@@ -1,17 +1,41 @@
 import express from 'express';
 import { cartControllers } from './cartControllers';
 import auth from '../../middleware/authMiddleware';
+import validateRequest from '../../utils/validRequest';
+import { cartValidationSchemas } from './cartValidation';
 
 const cartRouters = express.Router();
 
-cartRouters.post('/cart',auth("customer",'admin'), cartControllers.addToCart);
+cartRouters.post(
+  '/cart',
+  auth('customer', 'admin'),
+  validateRequest(cartValidationSchemas.addToCartSchema),
+  cartControllers.addToCart,
+);
 
-cartRouters.get('/cart/:userId', cartControllers.getCartItemsById);
+cartRouters.get(
+  '/carts',
+  auth('customer', 'admin'),
+  cartControllers.getCartItemsById,
+);
 
-cartRouters.put('/cart/:userId', cartControllers.updateCartItem);
+cartRouters.put(
+  '/cart',
+  auth('customer', 'admin'),
+  validateRequest(cartValidationSchemas.updateCartSchema),
+  cartControllers.updateCartItem,
+);
 
-cartRouters.delete('/cart/:userId/:cartId', cartControllers.clearCart);
+cartRouters.delete(
+  '/cart/:cartId',
+  auth('customer', 'admin'),
+  cartControllers.clearCart,
+);
 
-cartRouters.delete('/carts/:userId/:medicineId', cartControllers.deleteCartItem);
+cartRouters.delete(
+  '/carts/:medicineId',
+  auth('customer', 'admin'),
+  cartControllers.deleteCartItem,
+);
 
 export default cartRouters;
