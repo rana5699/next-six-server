@@ -21,3 +21,9 @@ export interface IOrder extends Document {
     paymentDate?: Date;
   };
 }
+
+
+// order intent status 
+export interface IOrderIntentStatus {
+  intentStatus:  'processing' | 'shipped' | 'delivered';
+}
