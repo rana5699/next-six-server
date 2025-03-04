@@ -5,8 +5,6 @@ import catchAsync from '../../utils/catchAsync';
 import responseHandler from '../../utils/responseHandler';
 import { userServices } from './userService';
 
-
-
 // get user by email
 const getUserByEmail = catchAsync(async (req, res) => {
   try {
@@ -97,31 +95,25 @@ const updateUser = catchAsync(async (req, res) => {
 
 // get all users (Admin only)
 const getAllUsers = catchAsync(async (req, res) => {
-  try {
+  const result = await userServices.getAllUsers();
 
-
-    const result = await userServices.getAllUsers();
-
-    if (!result || result.length === 0) {
-      return responseHandler(
-        res,
-        StatusCodes.NOT_FOUND,
-        false,
-        'No users found!',
-        null,
-      );
-    }
-
-    responseHandler(
+  if (!result || result.length === 0) {
+    return responseHandler(
       res,
-      StatusCodes.OK,
-      true,
-      'Users retrieved successfully',
-      result,
+      StatusCodes.NOT_FOUND,
+      false,
+      'No users found!',
+      null,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'Users retrieved successfully',
+    result,
+  );
 });
 
 // Delete User (Admin)

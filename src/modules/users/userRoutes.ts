@@ -6,6 +6,15 @@ import auth from '../../middleware/authMiddleware';
 
 const userRouters = express.Router();
 
+
+
+
+
+
+userRouters.post(
+  "/all-users",auth("admin"),userControllers.getAllUsers
+);
+
 userRouters.get('/user/:email', userControllers.getUserByEmail);
 
 userRouters.get('/users/:userId', userControllers.getSingleUserById);

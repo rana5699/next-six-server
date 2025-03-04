@@ -9,6 +9,7 @@ import medicineRouters from './modules/medicines/medicineRoutes';
 import cartRouters from './modules/cart/cartRoutes';
 import paymentRouters from './modules/payment/paymentRoutes';
 import orderRouter from './modules/orders/orderRoutes';
+import analyticRouters from './modules/analytics/analyticsRoutes';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/v1', medicineRouters);
 app.use('/api/v1', cartRouters);
 app.use('/api/v1', orderRouter);
 app.use('/api/v1', paymentRouters);
+app.use('/api/v1', analyticRouters);
 
 app.get('/', (req, res) => {
   res.send('Hello NEXT-SIX!');
