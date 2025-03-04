@@ -88,7 +88,7 @@ const updateUser = catchAsync(async (req, res) => {
 const getAllUsers = catchAsync(async (req, res) => {
   const result = await userServices.getAllUsers(req.query);
 
-  if (!result || result?.data.length === 0) {
+  if (!result || result?.data?.length === 0) {
     return responseHandler(
       res,
       StatusCodes.NOT_FOUND,
@@ -104,8 +104,8 @@ const getAllUsers = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Users retrieved successfully',
-    result.meta,
-    result.data,
+    result?.meta,
+    result?.data,
   );
 });
 

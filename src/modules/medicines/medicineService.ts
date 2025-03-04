@@ -1,3 +1,4 @@
+import QueryBuilder from '../../queryBuilder/QueryBuilder';
 import { IMedicine } from './medicineInterface';
 import Medicine from './medicineModel';
 
@@ -23,14 +24,29 @@ const deleteMedicine = async (medicineId: string) => {
 };
 
 // get all medicines
-const getAllMedicines = async () => {
-  return await Medicine.find();
+const getAllMedicines = async (query: Record<string, unknown>) => {
+  const medicineSearchFields = ['name', 'category', 'symptoms',"dosage_form"];
+
+  const medicineQuery = new QueryBuilder(Medicine.find(), query)
+    .search(medicineSearchFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await medicineQuery.countTotal();
+  const result = await medicineQuery.modelQuery;
+
+  return {
+    meta,
+    data: result,
+  };
 };
 
 // get medicine by _id
 const medicineById = async (id: string) => {
-    return await Medicine.findById(id);
-}
+  return await Medicine.findById(id);
+};
 
 export const medicineServices = {
   addMedicine,

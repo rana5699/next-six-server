@@ -6,7 +6,7 @@ import { medicineValidations } from './medicineValidation';
 
 const medicineRouters = express.Router();
 
-// For Admin Only (needs middleware)
+// For Admin Only
 medicineRouters.post(
   '/medicine',
   validateRequest(medicineValidations.medicineSchema),
@@ -14,6 +14,7 @@ medicineRouters.post(
   medicineControllers.addMedicine,
 );
 
+// For Admin Onl
 medicineRouters.put(
   '/medicine/:id',
   validateRequest(medicineValidations.medicineUpdateSchema),
@@ -21,6 +22,7 @@ medicineRouters.put(
   medicineControllers.updateMedicine,
 );
 
+// For Admin Onl
 medicineRouters.delete(
   '/medicine/:id',
   auth('admin'),
@@ -30,7 +32,5 @@ medicineRouters.delete(
 medicineRouters.get('/medicines', medicineControllers.getAllMedicines);
 
 medicineRouters.get('/medicine/:id', medicineControllers.getSingleMedicineById);
-
-// medicineRouters.get("/categories")
 
 export default medicineRouters;
