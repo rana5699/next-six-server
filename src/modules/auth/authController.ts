@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
-import AppError from '../../middleware/AppError';
 import responseHandler from '../../utils/responseHandler';
 import { authServices } from './authService';
 import User from '../users/userModel';
@@ -8,59 +6,53 @@ import catchAsync from '../../utils/catchAsync';
 
 // register user
 const registerUser = catchAsync(async (req, res) => {
-  try {
-    const userData = req.body;
+  const userData = req.body;
 
-    // check is user already exists
-    const isExists = await User.findByEmailOrPhone(
-      userData.email || userData.phone,
-    );
+  // check is user already exists
+  const isExists = await User.findByEmailOrPhone(
+    userData.email || userData.phone,
+  );
 
-    if (isExists) {
-      return responseHandler(
-        res,
-        StatusCodes.CONFLICT,
-        false,
-        'User email/phone number already exists!',
-        null,
-      );
-    }
-
-    const result = await authServices.registerUser(userData);
-
-    responseHandler(
+  if (isExists) {
+    return responseHandler(
       res,
-      StatusCodes.CREATED,
-      true,
-      'User registered successfully',
-      result,
+      StatusCodes.CONFLICT,
+      false,
+      'User email/phone number already exists!',
+      null,
+      null,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  const result = await authServices.registerUser(userData);
+
+  responseHandler(
+    res,
+    StatusCodes.CREATED,
+    true,
+    'User registered successfully',
+    null,
+    result,
+  );
 });
 
 // login user
-
 const loginUser = catchAsync(async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { phone, email, password } = req.body;
 
-    const result = await authServices.loginUser(email, password);
+  const result = await authServices.loginUser(email || phone, password);
 
-    responseHandler(
-      res,
-      StatusCodes.OK,
-      true,
-      'User logged in successfully',
-      result,
-    );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
-  }
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'User logged in successfully',
+    null,
+    result,
+  );
 });
 
 export const authControllers = {
   registerUser,
-  loginUser
+  loginUser,
 };

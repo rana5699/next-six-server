@@ -1,3 +1,4 @@
+import QueryBuilder from '../../queryBuilder/QueryBuilder';
 import { IUser } from './userInterface';
 import User from './userModel';
 
@@ -12,16 +13,28 @@ const getSingleUserById = async (userId: string) => {
 };
 
 // update user
-
 const updateUser = async (userId: string, updatedData: Partial<IUser>) => {
   return await User.findByIdAndUpdate(userId, updatedData, { new: true });
 };
 
-// login user
-
 // Get All Users (For Admin)
-const getAllUsers = async () => {
-  return await User.find();
+const getAllUsers = async (query: Record<string, unknown>) => {
+  const userSearchFields = ['name', 'email', 'phone'];
+
+  const userQuery = new QueryBuilder(User.find(), query)
+    .search(userSearchFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    data: result,
+  };
 };
 
 // Delete User (Admin only)

@@ -1,109 +1,101 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
-import AppError from '../../middleware/AppError';
 import catchAsync from '../../utils/catchAsync';
 import responseHandler from '../../utils/responseHandler';
 import { userServices } from './userService';
 
 // get user by email
 const getUserByEmail = catchAsync(async (req, res) => {
-  try {
-    const { email } = req.params;
+  const { email } = req.params;
 
-    const result = await userServices.getUserByEmail(email);
+  const result = await userServices.getUserByEmail(email);
 
-    if (!result) {
-      responseHandler(
-        res,
-        StatusCodes.NOT_FOUND,
-        false,
-        'User not found!',
-        result,
-      );
-    }
-
+  if (!result) {
     responseHandler(
       res,
-      StatusCodes.OK,
-      true,
-      'User retrieved successfully',
+      StatusCodes.NOT_FOUND,
+      false,
+      'User not found!',
+      null,
       result,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'User retrieved successfully',
+    null,
+    result,
+  );
 });
 
 // get user by id
 const getSingleUserById = catchAsync(async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const result = await userServices.getSingleUserById(userId);
+  const { userId } = req.params;
+  const result = await userServices.getSingleUserById(userId);
 
-    if (!result) {
-      responseHandler(
-        res,
-        StatusCodes.NOT_FOUND,
-        false,
-        'User not found from here!',
-        result,
-      );
-    }
-
+  if (!result) {
     responseHandler(
       res,
-      StatusCodes.OK,
-      true,
-      'User retrieved successfully',
+      StatusCodes.NOT_FOUND,
+      false,
+      'User not found from here!',
+      null,
       result,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'User retrieved successfully',
+    null,
+    result,
+  );
 });
 
 // update user
-
 const updateUser = catchAsync(async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const updatedUserData = req.body;
+  const { userId } = req.params;
+  const updatedUserData = req.body;
 
-    const result = await userServices.updateUser(userId, updatedUserData);
+  const result = await userServices.updateUser(userId, updatedUserData);
 
-    if (!result) {
-      responseHandler(
-        res,
-        StatusCodes.NOT_FOUND,
-        false,
-        'User not found!',
-        result,
-      );
-    }
-
+  if (!result) {
     responseHandler(
       res,
-      StatusCodes.OK,
-      true,
-      'User updated successfully',
+      StatusCodes.NOT_FOUND,
+      false,
+      'User not found!',
+      null,
       result,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'User updated successfully',
+    null,
+    result,
+  );
 });
 
 // get all users (Admin only)
 const getAllUsers = catchAsync(async (req, res) => {
-  const result = await userServices.getAllUsers();
+  const result = await userServices.getAllUsers(req.query);
 
-  if (!result || result.length === 0) {
+  if (!result || result?.data.length === 0) {
     return responseHandler(
       res,
       StatusCodes.NOT_FOUND,
       false,
       'No users found!',
       null,
+      result,
     );
   }
 
@@ -112,37 +104,36 @@ const getAllUsers = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Users retrieved successfully',
-    result,
+    result.meta,
+    result.data,
   );
 });
 
 // Delete User (Admin)
 const deleteUser = catchAsync(async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const result = await userServices.deleteUser(id);
+  const result = await userServices.deleteUser(id);
 
-    if (!result) {
-      responseHandler(
-        res,
-        StatusCodes.NOT_FOUND,
-        false,
-        'User not found!',
-        result,
-      );
-    }
-
+  if (!result) {
     responseHandler(
       res,
-      StatusCodes.OK,
-      true,
-      'User deleted successfully',
+      StatusCodes.NOT_FOUND,
+      false,
+      'User not found!',
+      null,
       result,
     );
-  } catch (error: any) {
-    throw new AppError(500, error?.message || 'Internal Server Error');
   }
+
+  responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'User deleted successfully',
+    null,
+    result,
+  );
 });
 
 export const userControllers = {
