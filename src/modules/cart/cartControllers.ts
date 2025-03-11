@@ -8,7 +8,7 @@ import Medicine from '../medicines/medicineModel';
 
 // add to cart
 const addToCart = catchAsync(async (req, res) => {
-  const { medicineId, quantity } = req.body;
+  const { medicineId, quantity, medicineInfo } = req.body;
   const userId = req.user?.userId;
 
   // Check if user exists
@@ -24,7 +24,7 @@ const addToCart = catchAsync(async (req, res) => {
     );
   }
 
-  const isMedicineExists = await Medicine.findById(medicineId)
+  const isMedicineExists = await Medicine.findById(medicineId);
 
   if (!isMedicineExists) {
     return responseHandler(
@@ -43,7 +43,7 @@ const addToCart = catchAsync(async (req, res) => {
   if (!cart) {
     cart = new Cart({
       userId,
-      items: [{ medicineId, quantity }],
+      items: [{ medicineId, quantity, medicineInfo }],
     });
   } else {
     const existingItem = cart.items.find(
@@ -56,6 +56,7 @@ const addToCart = catchAsync(async (req, res) => {
       cart.items.push({
         medicineId,
         quantity,
+        medicineInfo,
       });
     }
   }
@@ -73,9 +74,9 @@ const addToCart = catchAsync(async (req, res) => {
 });
 
 const getCartItemsById = catchAsync(async (req, res) => {
-  const result = await cartServices.getCartItemByUserId(req.query);
+  const result = await cartServices.getCartItemByUserId(req?.user?.userId);
 
-  if (result?.data.length === 0) {
+  if (!result) {
     responseHandler(
       res,
       StatusCodes.NOT_FOUND,
@@ -91,8 +92,8 @@ const getCartItemsById = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Cart items retrieved successfully.',
-    result?.meta,
-    result?.data,
+    null,
+    result,
   );
 });
 
@@ -169,11 +170,10 @@ const updateCartItem = catchAsync(async (req, res) => {
 
 // delete cart item
 const clearCart = catchAsync(async (req, res) => {
-  const {cartId } = req.params;
   const userId = req.user?.userId;
 
   // Validate the request parameters
-  if (!userId || !cartId) {
+  if (!userId) {
     responseHandler(
       res,
       StatusCodes.BAD_REQUEST,
@@ -184,7 +184,7 @@ const clearCart = catchAsync(async (req, res) => {
     );
   }
 
-  const result = await cartServices.deleteCartItem(userId, cartId);
+  const result = await cartServices.clearCartByUserId(userId);
 
   if (!result) {
     responseHandler(
@@ -201,14 +201,14 @@ const clearCart = catchAsync(async (req, res) => {
     res,
     StatusCodes.OK,
     true,
-    'Cart item deleted successfully.',
+    'Cart clear successfully.',
     null,
     {},
   );
 });
 
 const deleteCartItem = catchAsync(async (req, res) => {
-  const {  medicineId } = req.params;
+  const { medicineId } = req.params;
   const userId = req.user?.userId;
 
   // Validate request parameters
@@ -249,7 +249,7 @@ const deleteCartItem = catchAsync(async (req, res) => {
     true,
     'Cart item deleted successfully',
     null,
-    cart,
+    null,
   );
 });
 

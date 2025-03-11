@@ -7,7 +7,7 @@ const orderRouter = Router();
 orderRouter.get('/all-orders', auth('admin'), orderControllers.allOrders);
 
 orderRouter.get(
-  '/orders/:userId',
+  '/orders',
   auth('admin', 'customer'),
   orderControllers.getOrder,
 );

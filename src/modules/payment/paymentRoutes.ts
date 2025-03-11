@@ -19,6 +19,12 @@ paymentRouters.post(
   paymentControllers.checkPayment,
 );
 
+paymentRouters.get(
+  '/order-data/:orderId',
+  auth('admin',"customer"),
+  paymentControllers.getOrderData,
+);
+
 // medicineRouters.get("/categories")
 
 export default paymentRouters;

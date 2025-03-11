@@ -11,14 +11,14 @@ const allOrders = catchAsync(async (req, res) => {
     res,
     StatusCodes.OK,
     true,
-    'Order retrived successfully.',
+    'Order retrieved successfully.',
     null,
     result,
   );
 });
 
 const getOrder = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const userId = req?.user?.userId
 
   const result = await orderServices.getOrderByUserId(userId, req.query);
 
@@ -26,7 +26,7 @@ const getOrder = catchAsync(async (req, res) => {
     res,
     StatusCodes.OK,
     true,
-    'Order retrived successfully.',
+    'Order retrieved successfully.',
     null,
     result,
   );
@@ -35,7 +35,7 @@ const getOrder = catchAsync(async (req, res) => {
     res,
     StatusCodes.OK,
     true,
-    'Order retrived successfully',
+    'Order retrieved successfully',
     null,
     result,
   );

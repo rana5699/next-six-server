@@ -13,7 +13,7 @@ const medicineSchema = new Schema<IMedicine>(
     dosage_form: { type: [String], required: true },
     price: { type: Number, required: true, min: 0 },
     stock: { type: Number, required: true, min: 0 },
-    imageUrl: { type: String, required: true, match: /^https?:\/\/[^\s]+$/ },
+    imageUrl: { type: [String], required: true, match: /^https?:\/\/[^\s]+$/ },
     prescription_required: { type: Boolean, required: true },
   },
   { timestamps: true, versionKey: false },

@@ -8,6 +8,6 @@ export interface IMedicine {
   dosage_form: string[];
   price: number;
   stock: number;
-  imageUrl: string;
+  imageUrl: string[];
   prescription_required: boolean;
 }

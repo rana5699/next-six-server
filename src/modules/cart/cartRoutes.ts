@@ -27,7 +27,7 @@ cartRouters.put(
 );
 
 cartRouters.delete(
-  '/cart/:cartId',
+  '/cart',
   auth('customer', 'admin'),
   cartControllers.clearCart,
 );

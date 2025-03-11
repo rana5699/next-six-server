@@ -17,12 +17,15 @@ const stripe = new Stripe(config.stripeSecretKey!);
 const createCheckOutSession = catchAsync(async (req, res) => {
   const { medicines, address, phoneNumber }: IOrder = req.body;
 
+  console.log(medicines, address, phoneNumber);
+
   if (!Array(medicines) || medicines.length === 0) {
     return responseHandler(
       res,
       StatusCodes.NOT_FOUND,
       false,
       'Error creating checkout session. No medicines provided.',
+      null,
       null,
     );
   }
@@ -37,6 +40,7 @@ const createCheckOutSession = catchAsync(async (req, res) => {
       StatusCodes.NOT_FOUND,
       false,
       'No medicines found for the provided IDs!',
+      null,
       null,
     );
   }
@@ -77,6 +81,7 @@ const createCheckOutSession = catchAsync(async (req, res) => {
       false,
       'No valid medicines found for checkout',
       null,
+      null,
     );
   }
 
@@ -108,7 +113,7 @@ const createCheckOutSession = catchAsync(async (req, res) => {
       phoneNumber: phoneNumber ?? '',
     },
   });
-  responseHandler(res, StatusCodes.CREATED, true, 'Payment Created.', {
+  responseHandler(res, StatusCodes.CREATED, true, 'Payment Created.', null, {
     redirectUrl: session?.url,
   });
 });
@@ -124,6 +129,7 @@ const checkPayment = catchAsync(async (req, res) => {
       false,
       'Session ID is required',
       null,
+      null,
     );
   }
 
@@ -137,6 +143,7 @@ const checkPayment = catchAsync(async (req, res) => {
       false,
       'Session not found',
       null,
+      null,
     );
   }
 
@@ -149,6 +156,7 @@ const checkPayment = catchAsync(async (req, res) => {
       StatusCodes.BAD_REQUEST,
       false,
       'Invalid total amount.',
+      null,
       null,
     );
   }
@@ -181,6 +189,7 @@ const checkPayment = catchAsync(async (req, res) => {
       payment_status === 'paid'
         ? 'Payment completed. Order is now processing.'
         : 'Payment unsuccessful.',
+      null,
       { orderId: updatedOrder?._id },
     );
   }
@@ -193,6 +202,7 @@ const checkPayment = catchAsync(async (req, res) => {
       false,
       'Payment not successful.',
       null,
+      null,
     );
   }
 
@@ -200,16 +210,40 @@ const checkPayment = catchAsync(async (req, res) => {
   let medicines = [];
   if (metadata?.medicines) {
     try {
-      medicines = JSON.parse(metadata.medicines).map((item: any) => ({
-        medicineId: item.medicineId,
-        quantity: Number(item.quantity) || 0,
-      }));
+      medicines = JSON.parse(metadata.medicines).map((item: any) => {
+        if (
+          !item.medicineInfo ||
+          !item.medicineInfo.dosageForm ||
+          !item.medicineInfo.strength
+        ) {
+          return responseHandler(
+            res,
+            StatusCodes.BAD_REQUEST,
+            false,
+            'Please provide strength and dosage',
+            null,
+            null,
+          );
+        }
+        return {
+          medicineId: item.medicineId,
+          quantity: Number(item.quantity) || 0,
+          medicineInfo: {
+            dosageForm: item.medicineInfo.dosageForm,
+            strength: item.medicineInfo.strength,
+            prescription: item.medicineInfo.prescription || '',
+          },
+        };
+      });
+
+      console.log(medicines);
     } catch {
       return responseHandler(
         res,
         StatusCodes.BAD_REQUEST,
         false,
         'Invalid medicines format.',
+        null,
         null,
       );
     }
@@ -227,6 +261,7 @@ const checkPayment = catchAsync(async (req, res) => {
           false,
           'Incomplete address.',
           null,
+          null,
         );
       }
     } catch {
@@ -235,6 +270,7 @@ const checkPayment = catchAsync(async (req, res) => {
         StatusCodes.BAD_REQUEST,
         false,
         'Invalid address format.',
+        null,
         null,
       );
     }
@@ -282,13 +318,56 @@ const checkPayment = catchAsync(async (req, res) => {
     StatusCodes.CREATED,
     true,
     'Payment successful.',
+    null,
     {
       orderId: newOrder._id,
     },
   );
 });
 
+// get order data by orderId
+
+const getOrderData = catchAsync(async (req, res) => {
+  const { orderId } = req.params;
+
+  if (!orderId) {
+    return responseHandler(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      'Order ID is required',
+      null,
+      null,
+    );
+  }
+
+  const order = await OrderModel.findById(orderId).populate(
+    'medicines.medicineId',
+  );
+
+  if (!order) {
+    return responseHandler(
+      res,
+      StatusCodes.NOT_FOUND,
+      false,
+      'Order not found',
+      null,
+      null,
+    );
+  }
+
+  return responseHandler(
+    res,
+    StatusCodes.OK,
+    true,
+    'Order data fetched.',
+    null,
+    order,
+  );
+});
+
 export const paymentControllers = {
   createCheckOutSession,
   checkPayment,
+  getOrderData,
 };

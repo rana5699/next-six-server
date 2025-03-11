@@ -22,6 +22,21 @@ export const orderSchema = new Schema<IOrder>(
           required: true,
           min: [1, 'Quantity must be at least 1'],
         },
+        medicineInfo: {
+          dosageForm: {
+            type: String,
+            required: true,
+          },
+          prescription: {
+            type: String,
+            required: false,
+            default:""
+          },
+          strength: {
+            type: String,
+            required: true,
+          },
+        },
       },
       { _id: false },
     ],

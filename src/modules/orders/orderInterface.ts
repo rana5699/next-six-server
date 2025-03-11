@@ -6,8 +6,15 @@ export interface IOrder extends Document {
   medicines: {
     medicineId: { type: Types.ObjectId; ref: 'Medicine'; required: true };
     quantity: number;
+
+    medicineInfo: {
+      dosageForm: string;
+      prescription?: string;
+      strength: string;
+    };
   }[];
   totalPrice?: number;
+
   stripeSessionId?: string;
   orderIntent?: 'pending' | 'processing' | 'shipped' | 'delivered';
   address?: {
@@ -17,13 +24,12 @@ export interface IOrder extends Document {
   phoneNumber?: string;
   transactionInfo?: {
     paymentMethod: string;
-    paymentStatus: 'pending' | 'paid' | "unpaid";
+    paymentStatus: 'pending' | 'paid' | 'unpaid';
     paymentDate?: Date;
   };
 }
 
-
-// order intent status 
+// order intent status
 export interface IOrderIntentStatus {
-  intentStatus:  'processing' | 'shipped' | 'delivered';
+  intentStatus: 'processing' | 'shipped' | 'delivered';
 }

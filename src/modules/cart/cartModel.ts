@@ -13,13 +13,22 @@ const CartSchema = new Schema<ICart>(
         _id: false,
         medicineId: {
           type: Schema.Types.ObjectId,
-          ref: 'Medicine', // Ensure this matches the model name exactly
+          ref: 'Medicine',
           required: true,
         },
-        
+
         quantity: { type: Number, default: 1 },
+        medicineInfo: {
+          dosageForm: {
+            type: String,
+            required: [true, 'Dosage form is required'],
+          },
+          prescription: { type: String, },
+          strength: { type: String, required: [true, 'Strength is required'] },
+        },
       },
     ],
+
     totalPrice: { type: Number, default: 0 },
   },
   {
