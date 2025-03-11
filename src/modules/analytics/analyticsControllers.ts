@@ -11,6 +11,7 @@ const analyticsController = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Analytics fetched successfully',
+    null,
     result,
   );
 });
@@ -23,6 +24,7 @@ const getMonthlySales = catchAsync(async (req, res) => {
     StatusCodes.OK,
     true,
     'Monthly analytics fetched successfully',
+    null,
     result,
   );
 });
