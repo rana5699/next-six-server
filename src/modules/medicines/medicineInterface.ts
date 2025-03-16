@@ -1,3 +1,4 @@
+
 export interface IMedicine {
   name: string;
   generic_name: string;
@@ -9,5 +10,8 @@ export interface IMedicine {
   price: number;
   stock: number;
   imageUrl: string[];
+  rating?: number;
   prescription_required: boolean;
+  manufacturer_details?: string;
+  expiry_date?: string;
 }

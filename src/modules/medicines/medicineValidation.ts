@@ -13,7 +13,10 @@ export const medicineSchema = z.object({
     price: z.number().positive(),
     stock: z.number().int().nonnegative(),
     imageUrl: z.array(z.string()),
+    rating:z.number().positive().optional(),
     prescription_required: z.boolean(),
+    manufacturer_details: z.string().optional(),
+    expiry_date: z.string().optional(),
   }),
 });
 
@@ -31,6 +34,8 @@ export const medicineUpdateSchema = z.object({
     stock: z.number().int().nonnegative().optional(),
     imageUrl: z.array(z.string()).optional(),
     prescription_required: z.boolean().optional(),
+    manufacturer_details: z.string().optional(),
+    expiry_date: z.string().optional(),
   }),
 });
 
