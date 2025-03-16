@@ -3,6 +3,8 @@ import AppError from '../../middleware/AppError';
 import QueryBuilder from '../../queryBuilder/QueryBuilder';
 import { OrderModel } from './orderModel';
 import { IOrderIntentStatus } from './orderInterface';
+import User from '../users/userModel';
+import { sendEmail } from '../../utils/emailService';
 
 // all orders
 const getAllOrders = async (query: Record<string, unknown>) => {
@@ -65,6 +67,13 @@ const updateOrderIntentStatus = async (
     throw new Error('Order not found');
   }
 
+  // check user email
+  const user = await User.findById(order.userId);
+
+  if (!user) {
+    throw new Error('User not found here!');
+  }
+
   const currentStatus = order.orderIntent;
 
   if (currentStatus === 'processing') {
@@ -76,6 +85,20 @@ const updateOrderIntentStatus = async (
       `Invalid status transition from ${currentStatus} to ${orderIntentStatus.intentStatus}`,
     );
   }
+
+  // send email notification
+  await sendEmail(
+    user.email,
+    'Order Confirmation',
+    `
+    <div style="font-family: 'Poppins', Arial, sans-serif; color: #333;">
+      <h2 style="color: #4CAF50;">Order Confirmation</h2>
+      <p>Your order has been successfully <strong>${currentStatus}</strong>.</p>
+      <p>Order ID: <span style="font-weight: bold; color: #ff5722;">${orderId}</span></p>
+      <p>Thank you for shopping with us! 😊</p>
+    </div>
+    `,
+  );
 
   // Save the updated order
   const updatedOrder = await order.save();

@@ -14,4 +14,6 @@ export default {
   stripePublicKey: process.env.STRIPE_PUBLIC_KEY ,
   stripeSuccessUrl: process.env.STRIPE_SUCCESS_URL ,
   stripeCancelUrl: process.env.STRIPE_CANCEL_URL ,
+  senderEmail: process.env.SENDER_EMAIL,
+  emailPass: process.env.EMAIL_PASSWORD ,
 };

@@ -14,7 +14,7 @@ orderRouter.get(
 
 orderRouter.put(
   '/order/:id',
-  auth('admin'),
+  auth('admin',"customer"),
   orderControllers.updateOrderStatus,
 );
 

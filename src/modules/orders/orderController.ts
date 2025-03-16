@@ -47,6 +47,7 @@ const updateOrderStatus = catchAsync(async (req, res) => {
   const { intentStatus } = req.body;
 
   const result = await orderServices.updateOrderIntentStatus(id, intentStatus);
+  
 
   if (!result) {
     responseHandler(
