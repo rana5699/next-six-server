@@ -25,41 +25,16 @@ const analyticsService = async () => {
     },
   });
 
-  // Example: Get the product with the most orders
-  const topProduct = await OrderModel.aggregate([
-    { $unwind: '$medicines' },
-    { $group: { _id: '$medicines.medicineId', count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
-    { $limit: 3 },
-    {
-      $lookup: {
-        from: 'medicines',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'medicine',
-      },
-    },
-    { $unwind: '$medicine' },
-    {
-      $project: {
-        productId: '$_id',
-        totalOrders: '$count',
-        productName: '$medicine.name',
-        productPrice: '$medicine.price',
-      },
-    },
-  ]);
-
   return {
     totalUsers,
     totalProducts,
     totalOrders,
     totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0,
     totalPendingOrders,
-    topProduct: topProduct.length > 0 ? topProduct : null,
   };
 };
 
+// get monthly
 const getMonthlySales = async () => {
   const totalSales = await OrderModel.aggregate([
     {
@@ -71,7 +46,7 @@ const getMonthlySales = async () => {
     },
     {
       $group: {
-        _id: { $dayOfMonth: '$createdAt' },
+        _id: { $dateToString: { format: '%B %d, %Y', date: '$createdAt' } },
         totalSales: { $sum: '$totalPrice' },
       },
     },
